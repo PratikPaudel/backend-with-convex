@@ -21,3 +21,6 @@ convex/
 # Logs
 logs/
 *.log
+
+.idea
+.vscode
