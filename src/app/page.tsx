@@ -1,22 +1,15 @@
 "use client";
-import {useState} from "react";
 import {NewToDoForm} from "@/app/_components/new-todo-form";
+import {useQuery} from "convex/react";
+import {api} from "../../convex/_generated/api";
 
-type Todo = {
-    title: string;
-    description: string;
-    completed: boolean;
-    };
 export default function Home() {
-  const [todos, setTodos] = useState<Todo[]>([
-      {title: "Learn React", description: "Learn how to use React", completed: false},
-  ]);
-    
+    const todos = useQuery(api.functions.listTodos);    
   return (
         <div>
             <h1>Todo List</h1>
             <ul>
-                {todos.map(({ title, description, completed }, index) => (
+                {todos?.map(({ title, description, completed }, index) => (
                 <ToDoItem 
                     key={index}
                     title={title} 
