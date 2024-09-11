@@ -17,17 +17,25 @@ export default function Home() {
             <h1>Todo List</h1>
             <ul>
                 {todos.map(({ title, description, completed }, index) => (
-                <ToDoItem title={title} 
-                          description={description} 
-                          completed={completed} 
-                          onCompleteChanged={(newValue) => {
-                              setTodos(prev => {
-                                  const newTodos = [...prev];
-                                  newTodos[index].completed = newValue;
-                                  return newTodos;
-                              })
-                          }}
-                    />
+                <ToDoItem 
+                    key={index}
+                    title={title} 
+                    description={description} 
+                    completed={completed} 
+                    onCompleteChanged={(newValue) => {
+                        setTodos(prev => {
+                            const newTodos = [...prev];
+                            newTodos[index].completed = newValue;
+                            return newTodos;
+                        })
+                    }}
+                      onRemove={() => {
+                          setTodos(prev => {
+                              const newTodos = [...prev].filter((_, i) => i !== index);
+                              return newTodos;
+                          })
+                      }}
+                />
                 ))}
                 
             </ul>
@@ -37,16 +45,18 @@ export default function Home() {
                     newTodos.push({title, description, completed: false});
                     return newTodos;
                 });
-            }} />
+            }}            
+            />
         </div>
   );
 }
 
-function ToDoItem ({title, description, completed, onCompleteChanged } : {
+function ToDoItem ({title, description, completed, onCompleteChanged, onRemove } : {
     title: string;
     description: string;
     completed: boolean;
     onCompleteChanged: (complete: boolean) => void;
+    onRemove: () => void;
 }) {
     return (
         <li>
@@ -57,6 +67,7 @@ function ToDoItem ({title, description, completed, onCompleteChanged } : {
             />
             <span> {title} </span>
             {description}
+            <button type="button" className="text-red-500" onClick={() => onRemove()}>Remove</button>
         </li>
     )
 }
