@@ -1,7 +1,8 @@
 "use client";
 import {NewToDoForm} from "@/app/_components/new-todo-form";
-import {useQuery} from "convex/react";
+import {useMutation, useQuery} from "convex/react";
 import {api} from "../../convex/_generated/api";
+import {Id} from "../../convex/_generated/dataModel";
 
 export default function Home() {
     const todos = useQuery(api.functions.listTodos);    
@@ -9,58 +10,40 @@ export default function Home() {
         <div>
             <h1>Todo List</h1>
             <ul>
-                {todos?.map(({ title, description, completed }, index) => (
+                {todos?.map(({ _id, title, description, completed }, index) => (
                 <ToDoItem 
                     key={index}
+                    id={_id}
                     title={title} 
                     description={description} 
-                    completed={completed} 
-                    onCompleteChanged={(newValue) => {
-                        setTodos(prev => {
-                            const newTodos = [...prev];
-                            newTodos[index].completed = newValue;
-                            return newTodos;
-                        })
-                    }}
-                      onRemove={() => {
-                          setTodos(prev => {
-                              const newTodos = [...prev].filter((_, i) => i !== index);
-                              return newTodos;
-                          })
-                      }}
+                    completed={completed}
                 />
                 ))}
                 
             </ul>
-            <NewToDoForm onCreate={(title, description) => {
-                setTodos(prev => {
-                    const newTodos = [...prev];
-                    newTodos.push({title, description, completed: false});
-                    return newTodos;
-                });
-            }}            
-            />
+            <NewToDoForm/>
         </div>
   );
 }
 
-function ToDoItem ({title, description, completed, onCompleteChanged, onRemove } : {
+function ToDoItem ({id, title, description, completed } : {
+    id : Id<"todos">;
     title: string;
     description: string;
     completed: boolean;
-    onCompleteChanged: (complete: boolean) => void;
-    onRemove: () => void;
 }) {
+    const updateTodo = useMutation(api.functions.updateTodo);
+    const deleteTodo = useMutation(api.functions.deleteTodo);
     return (
         <li>
             <input 
                 type="checkbox" 
                 checked={completed} 
-                onChange={e => onCompleteChanged(e.target.checked)}
+                onChange={e => updateTodo({id, completed: e.target.checked})}
             />
             <span> {title} </span>
             {description}
-            <button type="button" className="text-red-500" onClick={() => onRemove()}>Remove</button>
+            <button type="button" className="text-red-500" onClick={() => deleteTodo({id})}>Remove</button>
         </li>
     )
 }
